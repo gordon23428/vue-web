@@ -167,9 +167,15 @@ export default {
       const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product`
       const vm = this
       this.$http.post(api,{ data: vm.tempProduct }).then((response) => {
-      
-      // vm.products = response.data.products
       console.log(response.data)
+      if( response.data.success ) {
+        $('#productModal').modal('hide')
+        vm.getProducts()
+      }else{
+        $('#productModal').modal('hide')
+        vm.getProducts()
+        console.log('新增失敗')
+      }
       })
     },
   },created() {
