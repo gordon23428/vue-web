@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-right mt-4">
-      <button class="btn btn-primary" @click="openModal">建立新產品</button>
+      <button class="btn btn-primary" @click="openModal(true)">建立新產品</button>
     </div>
     <table class="table mt-4">
       <thead>
@@ -29,7 +29,7 @@
             <span v-else>未啟用</span>
           </td>
           <td>
-            <button class="btn btn-outline-primary btn-sm">編輯</button>
+            <button class="btn btn-outline-primary btn-sm" @click="openModal(false, item)">編輯</button>
           </td>
         </tr>
       </tbody>
@@ -160,13 +160,25 @@ export default {
       console.log(vm.products)
       })
     },
-    openModal() {
+    openModal(isNew, item) {
       $('#productModal').modal('show')
+      if (isNew) {
+        this.tempProduct = {}
+        this.isNew = true
+      } else {
+        this.tempProduct = Object.assign({}, item ) 
+        this.isNew = false
+      }
     },
     updateProduct() {
-      const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product`
+      let api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product`
+      let httpMethod = 'post'
       const vm = this
-      this.$http.post(api,{ data: vm.tempProduct }).then((response) => {
+      if (!vm.isNew) {
+        api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product/${vm.tempProduct.id}`
+        httpMethod = 'put'
+      }
+      this.$http[httpMethod](api,{ data: vm.tempProduct }).then((response) => {
       console.log(response.data)
       if( response.data.success ) {
         $('#productModal').modal('hide')
