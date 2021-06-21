@@ -12,6 +12,7 @@
           <th width="120">售價</th>
           <th width="100">是否啟用</th>
           <th width="80">編輯</th>
+          <th width="80">刪除</th>
         </tr>
       </thead>
       <tbody>
@@ -31,10 +32,13 @@
           <td>
             <button class="btn btn-outline-primary btn-sm" @click="openModal(false, item)">編輯</button>
           </td>
+          <td>
+            <button class="btn btn-outline-danger btn-sm" @click="deleteModal(true, item)">刪除</button>
+          </td>
         </tr>
       </tbody>
     </table>
-    <!-- modal -->
+    <!-- Productmodal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
@@ -59,7 +63,7 @@
                     <i class="fas fa-spinner fa-spin"></i>
                   </label>
                   <input type="file" id="customFile" class="form-control"
-                    ref="files">
+                    ref="files" @change="uploadFile">
                 </div>
                 <img img="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=828346ed697837ce808cae68d3ddc3cf&auto=format&fit=crop&w=1350&q=80"
                   class="img-fluid" :src="tempProduct.imageUrl" alt="">
@@ -137,6 +141,30 @@
         </div>
       </div>
     </div>
+    <!-- deleteModal -->
+    <div class="modal fade" id="delProductModal" tabindex="-1" role="dialog"
+      aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content border-0">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="exampleModalLabel">
+              <span>刪除產品</span>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            是否刪除 <strong class="text-danger">{{ tempProduct.title }}</strong> 商品(刪除後將無法恢復)。
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" @click="deleteModal(false)">取消</button>
+            <button type="button" class="btn btn-danger"
+              @click="deleteProduct()">確認刪除</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -148,6 +176,7 @@ export default {
       products: [],
       tempProduct: {},
       isNew: false,
+      delId: '',
     }
   },
   methods: {
@@ -190,6 +219,42 @@ export default {
       }
       })
     },
+    deleteProduct() {
+      const vm = this
+      const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product/${vm.delId}`
+      this.$http.delete(api).then((response) => {
+      console.log(response.data)
+      $('#delProductModal').modal('hide')
+      vm.getProducts()
+      })
+    },
+    deleteModal(mod, item) {
+      if (mod) {
+        $('#delProductModal').modal('show')
+        this.delId = item.id
+      } else {
+         $('#delProductModal').modal('hide')
+      }
+    },
+    uploadFile() {
+      console.log(this)
+      const uploadedFile = this.$refs.files.files[0]
+      const vm = this
+      const formData = new FormData()
+      formData.append('file-to-upload', uploadedFile)
+      const url = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/upload`
+      this.$http.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response) => {
+        console.log(response.data)
+        if (response.data.success) {
+          //vm.tempProduct.imageUrl = response.data.imageUrl
+          vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+        }
+      })
+    }
   },created() {
     this.getProducts()
   },
