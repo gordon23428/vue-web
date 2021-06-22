@@ -1,5 +1,6 @@
 <template>
   <div>
+    <loading :active.sync="isLoading"/>
     <div class="text-right mt-4">
       <button class="btn btn-primary" @click="openModal(true)">建立新產品</button>
     </div>
@@ -60,7 +61,7 @@
                 </div>
                 <div class="form-group">
                   <label for="customFile">或 上傳圖片
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <i class="fas fa-spinner fa-spin" v-if="status.fileUploading"></i>
                   </label>
                   <input type="file" id="customFile" class="form-control"
                     ref="files" @change="uploadFile">
@@ -177,15 +178,20 @@ export default {
       tempProduct: {},
       isNew: false,
       delId: '',
+      isLoading: false,
+      status: {
+        fileUploading: false,
+      }
     }
   },
   methods: {
     getProducts() {
       const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/products`
       const vm = this
+      vm.isLoading = true
       this.$http.get(api).then((response) => {
-      
       vm.products = response.data.products
+      vm.isLoading = false
       console.log(vm.products)
       })
     },
@@ -243,6 +249,7 @@ export default {
       const formData = new FormData()
       formData.append('file-to-upload', uploadedFile)
       const url = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/upload`
+      vm.status.fileUploading = true
       this.$http.post(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -250,7 +257,7 @@ export default {
       }).then((response) => {
         console.log(response.data)
         if (response.data.success) {
-          //vm.tempProduct.imageUrl = response.data.imageUrl
+          vm.status.fileUploading = false
           vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
         }
       })
