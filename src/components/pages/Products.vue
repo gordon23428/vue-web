@@ -259,11 +259,14 @@ export default {
         if (response.data.success) {
           vm.status.fileUploading = false
           vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+        } else {
+          this.$bus.$emit('messsage:push', response.data.message, 'danger')
         }
       })
     }
   },created() {
     this.getProducts()
+
   },
 }
 </script>
