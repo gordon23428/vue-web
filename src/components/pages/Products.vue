@@ -193,11 +193,11 @@ export default {
   },
   methods: {
     getProducts(page = 1) {
-      const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/products?page=${page}`
+      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`
+      console.log(api)
       const vm = this
       vm.isLoading = true
       this.$http.get(api).then((response) => {
-      console.log(response.data)
       vm.products = response.data.products
       vm.isLoading = false
       vm.pagination = response.data.pagination
@@ -214,11 +214,11 @@ export default {
       }
     },
     updateProduct() {
-      let api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product`
+      let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`
       let httpMethod = 'post'
       const vm = this
       if (!vm.isNew) {
-        api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product/${vm.tempProduct.id}`
+        api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.tempProduct.id}`
         httpMethod = 'put'
       }
       this.$http[httpMethod](api,{ data: vm.tempProduct }).then((response) => {
@@ -235,7 +235,7 @@ export default {
     },
     deleteProduct() {
       const vm = this
-      const api = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/product/${vm.delId}`
+      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.delId}`
       this.$http.delete(api).then((response) => {
       console.log(response.data)
       $('#delProductModal').modal('hide')
@@ -256,7 +256,7 @@ export default {
       const vm = this
       const formData = new FormData()
       formData.append('file-to-upload', uploadedFile)
-      const url = `${process.env.APIPATH}/api/${process.env.COSTOMPATH}/admin/upload`
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`
       vm.status.fileUploading = true
       this.$http.post(url, formData, {
         headers: {
