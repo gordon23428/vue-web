@@ -24,7 +24,7 @@
               <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
               查看更多
             </button>
-            <button type="button" class="btn btn-outline-danger btn-sm ml-auto">
+            <button type="button" class="btn btn-outline-danger btn-sm ml-auto" @click="addToCart(product.id)">
               <i class="fas fa-spinner fa-spin" v-if="status.loadingItem === item.id"></i>
               加到購物車
             </button>
@@ -65,8 +65,8 @@
               小計 <strong>{{ product.num * product.price }}</strong> 元
             </div>
             <button type="button" class="btn btn-primary"
-              @click="addtoCart(product.id, product.num)">
-              <i class="fas fa-spinner fa-spin" ></i>
+              @click="addToCart(product.id, product.num)">
+              <i class="fas fa-spinner fa-spin"  v-if="status.loadingItem === product.id"></i>
               加到購物車
             </button>
           </div>
@@ -91,29 +91,54 @@ export default {
   },
   methods: {
     getProducts() {
-      const vm = this;
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
-      vm.isLoading = true;
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`
+      vm.isLoading = true
       this.$http.get(url).then((response) => {
-        vm.products = response.data.products;
-        console.log(response.data.products);
-        vm.isLoading = false;
+        vm.products = response.data.products
+        console.log(response.data.products)
+        vm.isLoading = false
       });
     },
     getProduct(id) {
-      const vm = this;
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/product/${id}`;
-      vm.status.loadingItem = id;
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/product/${id}`
+      vm.status.loadingItem = id
       this.$http.get(url).then((response) => {
-        vm.product = response.data.product;
+        vm.product = response.data.product
         $('#productModal').modal('show')
-        console.log(response.data);
-        vm.status.loadingItem = '';
+        console.log(response.data)
+        vm.status.loadingItem = ''
       });
     },
+    addToCart(id, qty = 1) {
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`
+      vm.status.loadingItem = id
+      const cart = {
+        product_id: id,
+        qty
+      }
+      this.$http.post(url, { data: cart}).then((response) => {
+        console.log(response.data)
+        vm.status.loadingItem = ''
+        vm.getCart()
+        $('#productModal').modal('hide')
+      });
+    },
+    getCart() {
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/cart`
+      vm.isLoading = true
+      this.$http.get(url).then((response) => {
+        console.log(response.data)
+        vm.isLoading = false
+      })
+    }
   },
   created() {
-    this.getProducts();
+    this.getProducts()
+    this.getCart()
   },
 };
 </script>
