@@ -19,7 +19,7 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="">
+            <router-link class="nav-link" to="/admin/coupons">
               優惠卷
             </router-link>
           </li>
