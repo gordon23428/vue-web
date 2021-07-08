@@ -56,7 +56,7 @@
               </div>
               <div class="mb-3">
                 <label for="date" class="col-form-label">到期日</label>
-                <input type="text" class="form-control" id="date" v-model="tempCoupon.due_date">
+                <input type="date" class="form-control" id="date" v-model="tempCoupon.due_date">
               </div>
               <div class="mb-3">
                 <label for="percent" class="col-form-label">折扣百分比</label>
@@ -112,6 +112,7 @@ export default {
       isLoading: false,
       tempCoupon: {},
       coupons: [],
+      due_date: new Date(),
       isNew: false,
       delId: '',
     }
@@ -124,6 +125,7 @@ export default {
         api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon/${vm.tempCoupon.id}`
         httpMethod = 'put'
       }
+      vm.unix('timestamp')
       this.$http[httpMethod](api, { data: vm.tempCoupon }).then((response) => {
         if( response.data.success ) {
            console.log(response.data)
@@ -141,9 +143,14 @@ export default {
       const vm = this
       vm.isLoading = true
       this.$http.get(api).then((response) => {
-      vm.coupons = response.data.coupons
+      console.log(response.data.coupons)
+      vm.coupons = []
+      response.data.coupons.forEach(item => {
+        item.due_date = vm.unix('date', item.due_date)
+        vm.coupons.push(item)
+      })
       vm.isLoading = false
-      console.log(vm.coupons)
+      
 
       })
     },
@@ -153,7 +160,8 @@ export default {
         this.tempCoupon = {}
         this.isNew = true
       } else {
-        this.tempCoupon = Object.assign({}, item ) 
+        this.tempCoupon = Object.assign({}, item )
+
         this.isNew = false
       }
     },
@@ -174,9 +182,23 @@ export default {
          $('#delCouponModal').modal('hide')
       }
     },
+    unix(mod, item) {
+      const vm = this
+      if(mod === 'timestamp') {
+        const timestamp = Math.floor(new Date(vm.tempCoupon.due_date) / 1000)
+        vm.tempCoupon.due_date = timestamp
+        console.log(timestamp)
+      } else if (mod === 'date') {
+        const dateAndTime = new Date(item * 1000).toISOString().split('T')
+        return dateAndTime[0]
+      }
+      
+      
+    }
+
   },
   created() {
       this.getCoupons()
-    },
+  },
 }
 </script>
