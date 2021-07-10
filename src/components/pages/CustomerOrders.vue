@@ -120,6 +120,49 @@
         </div>
       </div>
     </div>
+    <!-- order -->
+    <div class="my-5 row justify-content-center">
+      <ValidationObserver v-slot="{ invalid }">
+        <form @submit.prevent="createOrder">
+          <ValidationProvider rules="required|email" v-slot="{ errors, classes }">
+            <div class="form-group">
+              <label for="email">Email</label>
+            <input id="email" type="email" name="email" v-model="form.user.email" class="form-control" :class="classes">
+            <span class="invalid-feedback">{{errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider rules="required" v-slot="{ errors, classes }">
+            <div class="form-group">
+              <label for="name">收件人姓名</label>
+            <input id="name" type="name" name="name" v-model="form.user.name" class="form-control" :class="classes">
+            <span class="invalid-feedback">{{errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider rules="required" v-slot="{ errors, classes }">
+            <div class="form-group">
+              <label for="tel">收件人電話</label>
+            <input id="tel" type="tel" name="tel" v-model="form.user.tel" class="form-control" :class="classes">
+            <span class="invalid-feedback">{{errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider rules="required" v-slot="{ errors, classes }">
+            <div class="form-group">
+              <label for="email">收件人地址</label>
+            <input id="address" type="name" name="address" v-model="form.user.address" class="form-control" :class="classes">
+            <span class="invalid-feedback">{{errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          <div class="form-group">
+          <label for="useraddress">留言</label>
+          <textarea name="" id="" class="form-control" cols="30" rows="10"
+            v-model="form.message"></textarea>
+        </div>
+          <div class="text-right">
+            <button class="btn btn-danger" :disabled="invalid">送出訂單</button>
+          </div>
+        </form>
+      </ValidationObserver>
+    </div>  
   </div>
 </template>
 
@@ -131,11 +174,20 @@ export default {
       products: [],
       product: {},
       cart: {},
+      isLoading: false,
+      coupon_code: '',
       status: {
           loadingItem: '',
         },
-      isLoading: false,
-      coupon_code: '',
+      form: {
+        user: {
+          name: '',
+          email: '',
+          tel: '',
+          address: '',
+        },
+        message: '',
+      },
     };
   },
   methods: {
@@ -202,11 +254,23 @@ export default {
         code: vm.coupon_code
       }
       vm.isLoading = true
-      this.$http.post(url, {data: {coupon}}).then((response) => {
+      this.$http.post(url, {data: coupon}).then((response) => {
         console.log(response.data)
         vm.isLoading = false
         vm.getCart()
       })
+    },
+    createOrder() {
+      const vm = this
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/coupon`
+      const order = vm.form
+      //vm.isLoading = true
+      this.$http.post(url, {data: order}).then((response) => {
+        console.log('訂單建立', response.data)
+        vm.isLoading = false
+        //vm.getCart()
+      })
+      
     },
   },
   created() {
