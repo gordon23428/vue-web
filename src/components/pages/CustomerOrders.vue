@@ -262,11 +262,14 @@ export default {
     },
     createOrder() {
       const vm = this
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/coupon`
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/order`
       const order = vm.form
       //vm.isLoading = true
       this.$http.post(url, {data: order}).then((response) => {
         console.log('訂單建立', response.data)
+        if(response.data.success) {
+          vm.$router.push(`/customer_checkout/${response.data.orderId}`)
+        }
         vm.isLoading = false
         //vm.getCart()
       })
